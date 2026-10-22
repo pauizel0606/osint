@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OSINT Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060910;--bg2:#0a0f1a;--panel:#0d1420cc;--border:#1c2b3a;--text:#dbe9f2;--muted:#86a0b4;--acc:#22d3ee;--acc2:#a78bfa;--warn:#facc15;--danger:#f87171}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:
+radial-gradient(circle at 15% 0%,#102030 0%,transparent 45%),
+radial-gradient(circle at 85% 20%,#1a1030 0%,transparent 40%),
+var(--bg);background-attachment:fixed;color:var(--text);font-family:'Inter',Arial,sans-serif;padding-top:env(safe-area-inset-top,0px)}
+code,.mono{font-family:'JetBrains Mono',monospace}
+header{position:sticky;top:0;z-index:20;background:#070b12cc;backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.logo{font-size:23px;font-weight:800;letter-spacing:-.5px}
+.logo span{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pill{font-size:12px;color:var(--muted);border:1px solid var(--border);padding:5px 11px;border-radius:20px}
+.container{display:flex;min-height:calc(100vh - 70px)}
+nav{width:235px;background:#070b12;border-right:1px solid var(--border);padding:14px;flex-shrink:0;overflow-x:auto}
+nav button{width:100%;padding:11px 12px;margin:3px 0;background:transparent;color:var(--muted);border:0;border-left:3px solid transparent;text-align:left;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit;transition:.15s}
+nav button:hover{background:#101b28;color:#fff}
+nav button.active{background:linear-gradient(90deg,#123544,transparent);color:#fff;border-left:3px solid var(--acc)}
+main{flex:1;padding:26px;max-width:1040px;overflow-x:auto}
+.card{background:var(--panel);backdrop-filter:blur(6px);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px -12px #000}
+h1,h2,h3{margin-top:0}
+h1{font-size:30px}
+.hero h1{font-size:34px;background:linear-gradient(90deg,#fff,var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.stat{background:#0f1a26;border:1px solid var(--border);border-radius:10px;padding:12px 18px;min-width:110px}
+.stat b{display:block;font-size:22px;color:var(--acc)}
+.stat span{font-size:12px;color:var(--muted)}
+input,select{width:100%;background:#060a10;color:#fff;border:1px solid #243849;border-radius:8px;padding:11px;margin:6px 0 10px;font-family:inherit}
+input:focus,select:focus{outline:2px solid var(--acc)}
+input[type=file]{padding:8px}
+label{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>div{flex:1;min-width:150px}
+button.action{background:linear-gradient(135deg,#0e3a44,#163a2e);color:var(--acc);border:1px solid #166674;padding:11px 18px;border-radius:8px;cursor:pointer;font-weight:600;font-family:inherit}
+button.action:hover{filter:brightness(1.2)}
+.results{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{background:#0f1b27;border:1px solid var(--border);color:var(--acc);padding:9px 13px;border-radius:20px;text-decoration:none;font-size:13px;transition:.15s}
+.chip:hover{background:#17293a;border-color:var(--acc);transform:translateY(-1px)}
+.tag{display:inline-block;background:#1b1430;color:var(--acc2);padding:4px 10px;border-radius:6px;font-size:11px;margin-bottom:10px;letter-spacing:.3px}
+.hint{color:var(--warn);font-size:12px;margin:4px 0 0}
+.banner{background:#1a1406;border:1px solid #4a3a0c;color:var(--warn);border-radius:10px;padding:14px 18px;font-size:13px;margin-bottom:18px}
+.catgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.catgrid div{background:#0f1a26;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:13px;transition:.15s}
+.catgrid div:hover{border-color:var(--acc)}
+ul.cheats{font-size:13px;line-height:1.8;padding-left:18px}
+ul.cheats code{color:var(--acc)}
+.ethics li,.legal li{margin-bottom:10px;font-size:14px;line-height:1.6}
+.legal h3{color:var(--acc2);margin-top:18px}
+footer{font-size:11px;color:var(--muted);text-align:center;padding:14px;border-top:1px solid var(--border)}
+.exifbox{background:#060a10;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12px;white-space:pre-wrap;overflow:auto;max-height:320px;margin-top:10px}
+.overlay{position:fixed;inset:0;background:#02040799;backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#0d1420;border:1px solid var(--border);border-radius:16px;padding:26px;max-width:520px;width:100%;box-shadow:0 20px 60px -20px #000}
+.modal label{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text);margin:14px 0}
+.modal input[type=checkbox]{width:auto;margin:3px 0 0}
+@media(max-width:750px){.container{flex-direction:column}nav{width:100%;border-right:0;border-bottom:1px solid var(--border)}main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="overlay" id="gate">
+<div class="modal">
+<h2>⚠️ Antes de continuar</h2>
+<p style="font-size:13px;line-height:1.6">Esta herramienta solo genera enlaces hacia servicios públicos de terceros (buscadores, redes sociales, WHOIS, bases de brechas conocidas, etc.). <b>El propietario de esta web no se hace responsable del uso que cada persona le dé</b>, ni de la veracidad, disponibilidad o contenido de los sitios externos enlazados. Uso bajo tu propia responsabilidad y conforme a la legislación aplicable.</p>
+<label><input type="checkbox" id="gateChk"> He leído y acepto el <a href="#" onclick="go('legal');return false" style="color:var(--acc)">Aviso legal completo</a> y la <a href="#" onclick="go('ethics');return false" style="color:var(--acc)">guía de uso ético</a>.</label>
+<button class="action" id="gateBtn" disabled onclick="acceptGate()">Entrar al Toolkit</button>
+</div>
+</div>
+<header>
+<div class="logo">OSINT<span>Toolkit</span></div>
+<div class="pill">100% gratuito · solo fuentes públicas</div>
+</header>
+<div class="container">
+<nav id="nav"></nav>
+<main id="main"></main>
+</div>
+<footer>OSINT Toolkit — herramienta informativa sin ánimo de lucro. No almacena tus consultas. El propietario no se responsabiliza del uso dado por terceros. Ver <a href="#" onclick="go('legal');return false" style="color:var(--acc)">Aviso legal</a>.</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+<script>
+const CATS=[{s:'home',n:'🏠 Inicio'},{s:'ethics',n:'⚖️ Ética de uso'},{s:'legal',n:'📄 Aviso legal'},
+{s:'username',n:'👤 Usuario / Alias'},{s:'email',n:'📧 Email'},{s:'phone',n:'📱 Teléfono'},
+{s:'domain',n:'🌐 Dominio'},{s:'ip',n:'🛰️ Dirección IP'},{s:'image',n:'🖼️ Imágenes'},
+{s:'metadata',n:'📍 Metadatos EXIF'},{s:'social',n:'🔎 Redes sociales'},{s:'company',n:'🏢 Empresas'},
+{s:'dorks',n:'🧭 Google Dorks'},{s:'leaks',n:'🚨 Fugas de datos'}];
+
+const PLATFORMS=[['GitHub','https://github.com/{u}'],['GitLab','https://gitlab.com/{u}'],['Codeberg','https://codeberg.org/{u}'],
+['Bitbucket','https://bitbucket.org/{u}'],['X / Twitter','https://x.com/{u}'],['Instagram','https://instagram.com/{u}'],
+['TikTok','https://www.tiktok.com/@{u}'],['Threads','https://www.threads.net/@{u}'],['Bluesky','https://bsky.app/profile/{u}'],
+['Mastodon','https://mastodon.social/@{u}'],['Reddit','https://www.reddit.com/user/{u}'],['Pinterest','https://www.pinterest.com/{u}'],
+['Twitch','https://www.twitch.tv/{u}'],['YouTube','https://www.youtube.com/@{u}'],['Facebook','https://www.facebook.com/{u}'],
+['LinkedIn','https://www.linkedin.com/in/{u}'],['Medium','https://medium.com/@{u}'],['Telegram','https://t.me/{u}'],
+['Snapchat','https://www.snapchat.com/add/{u}'],['Spotify','https://open.spotify.com/user/{u}'],['SoundCloud','https://soundcloud.com/{u}'],
+['Steam','https://steamcommunity.com/id/{u}'],['Vimeo','https://vimeo.com/{u}'],['Flickr','https://www.flickr.com/people/{u}'],
+['DeviantArt','https://{u}.deviantart.com'],['Keybase','https://keybase.io/{u}'],['Patreon','https://www.patreon.com/{u}'],
+['Behance','https://www.behance.net/{u}'],['Dribbble','https://dribbble.com/{u}'],['About.me','https://about.me/{u}'],
+['Linktree','https://linktr.ee/{u}'],['Quora','https://www.quora.com/profile/{u}'],['Tumblr','https://{u}.tumblr.com'],
+['VK','https://vk.com/{u}'],['Weibo','https://weibo.com/{u}'],['Chess.com','https://www.chess.com/member/{u}'],
+['Letterboxd','https://letterboxd.com/{u}'],['Goodreads','https://www.goodreads.com/{u}'],['Etsy','https://www.etsy.com/shop/{u}'],
+['Fiverr','https://www.fiverr.com/{u}'],['Product Hunt','https://www.producthunt.com/@{u}'],['CodePen','https://codepen.io/{u}'],
+['Replit','https://replit.com/@{u}'],['npm','https://www.npmjs.com/~{u}'],['Hacker News','https://news.ycombinator.com/user?id={u}'],
+['Dev.to','https://dev.to/{u}'],['Hashnode','https://hashnode.com/@{u}'],['Kaggle','https://www.kaggle.com/{u}'],
+['HackerRank','https://www.hackerrank.com/{u}'],['LeetCode','https://leetcode.com/{u}'],['SourceForge','https://sourceforge.net/u/{u}'],
+['itch.io','https://{u}.itch.io'],['Trello','https://trello.com/{u}'],['Unsplash','https://unsplash.com/@{u}'],
+['500px','https://500px.com/p/{u}'],['Last.fm','https://www.last.fm/user/{u}'],['Discogs','https://www.discogs.com/user/{u}'],
+['Bandcamp','https://{u}.bandcamp.com'],['Ko-fi','https://ko-fi.com/{u}'],['Buy Me a Coffee','https://www.buymeacoffee.com/{u}'],
+['Polywork','https://www.polywork.com/{u}']];
+
+function cleanDomain(v){return v.trim().replace(/^https?:\/\//i,'').split('/')[0];}
+function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+
+const TOOLS={
+username:{title:'Usuario / Alias',desc:'Genera los enlaces directos al perfil de ese usuario en más de 60 plataformas. Tú decides cuáles abrir y comprobar manualmente.',
+fields:[{id:'u',l:'Nombre de usuario'}],
+build:v=>PLATFORMS.map(([n,t])=>({name:n,url:t.replace('{u}',encodeURIComponent(v.u))}))},
+
+email:{title:'Dirección de email',desc:'Comprueba brechas de datos conocidas, menciones públicas y directorios de claves.',
+fields:[{id:'e',l:'Email'}],
+build:v=>{const e=v.e.trim(),dom=e.split('@')[1]||'';return [
+{name:'Have I Been Pwned (brechas)',url:'https://haveibeenpwned.com/account/'+encodeURIComponent(e)},
+{name:'Google (menciones exactas)',url:'https://www.google.com/search?q=%22'+encodeURIComponent(e)+'%22'},
+{name:'Keybase (buscar)',url:'https://keybase.io/search?q='+encodeURIComponent(e)},
+{name:'Servidor de claves PGP',url:'https://keys.openpgp.org/search?q='+encodeURIComponent(e)},
+{name:'DeHashed',url:'https://dehashed.com/search?query='+encodeURIComponent(e)},
+{name:'Epieos (gratuito)',url:'https://epieos.com/'},
+{name:'Hunter.io (dominio)',url:'https://hunter.io/search/'+encodeURIComponent(dom)},
+{name:'Registros MX del dominio',url:'https://mxtoolbox.com/SuperTool.aspx?action=mx%3a'+encodeURIComponent(dom)}
+];}},
+
+phone:{title:'Número de teléfono',desc:'Localiza menciones públicas e información de operador. Incluye el prefijo del país (ej. +34...).',
+fields:[{id:'p',l:'Teléfono (con prefijo)'}],
+build:v=>{const p=v.p.trim(),digits=p.replace(/\D/g,'');return [
+{name:'Google (menciones exactas)',url:'https://www.google.com/search?q=%22'+encodeURIComponent(p)+'%22'},
+{name:'Sync.me',url:'https://sync.me/search/?number='+encodeURIComponent(digits)},
+{name:'NumLookup',url:'https://www.numlookup.com/'+encodeURIComponent(digits)},
+{name:'Should I Answer',url:'https://www.shouldianswer.com/phone-number/'+encodeURIComponent(digits)},
+{name:'WhitePages (EEUU)',url:'https://www.whitepages.com/phone/'+encodeURIComponent(digits)},
+{name:'Free Carrier Lookup',url:'https://freecarrierlookup.com/'}
+];}},
+
+domain:{title:'Dominio web',desc:'WHOIS, certificados, histórico, tecnologías usadas y subdominios de un dominio.',
+fields:[{id:'d',l:'Dominio (ej: ejemplo.com)'}],
+build:v=>{const d=cleanDomain(v.d);return [
+{name:'WHOIS',url:'https://who.is/whois/'+d},
+{name:'Certificados SSL (crt.sh)',url:'https://crt.sh/?q=%25.'+d},
+{name:'Wayback Machine (histórico)',url:'https://web.archive.org/web/*/'+d},
+{name:'Archive.today',url:'https://archive.ph/'+d},
+{name:'DNS (Google)',url:'https://dns.google/query?name='+d},
+{name:'Shodan',url:'https://www.shodan.io/search?query='+d},
+{name:'SecurityTrails',url:'https://securitytrails.com/domain/'+d+'/dns'},
+{name:'Tecnologías (BuiltWith)',url:'https://builtwith.com/'+d},
+{name:'VirusTotal',url:'https://www.virustotal.com/gui/domain/'+d},
+{name:'Google site:',url:'https://www.google.com/search?q=site%3a'+d},
+{name:'Subdominios (dork)',url:'https://www.google.com/search?q=site%3a*.'+d+'+-www'}
+];}},
+
+ip:{title:'Dirección IP',desc:'Geolocalización, puertos abiertos y reputación de una IP pública.',
+fields:[{id:'i',l:'Dirección IP'}],
+build:v=>{const i=v.i.trim();return [
+{name:'Shodan (host)',url:'https://www.shodan.io/host/'+i},
+{name:'IPinfo (geolocalización)',url:'https://ipinfo.io/'+i},
+{name:'AbuseIPDB (reputación)',url:'https://www.abuseipdb.com/check/'+i},
+{name:'Censys',url:'https://search.censys.io/hosts/'+i},
+{name:'VirusTotal',url:'https://www.virustotal.com/gui/ip-address/'+i},
+{name:'IP Location',url:'https://www.iplocation.net/ip-lookup?query='+i}
+];}},
+
+image:{title:'Búsqueda inversa de imágenes',desc:'Pega la URL pública de una imagen (no un archivo local) para buscarla en varios motores. Si solo tienes el archivo, usa también la pestaña "Metadatos EXIF".',
+fields:[{id:'img',l:'URL de la imagen'}],
+build:v=>{const u=encodeURIComponent(v.img.trim());return [
+{name:'Google Lens',url:'https://lens.google.com/uploadbyurl?url='+u},
+{name:'Yandex Images',url:'https://yandex.com/images/search?rpt=imageview&url='+u},
+{name:'Bing Visual Search',url:'https://www.bing.com/images/search?view=detailv2&iss=sbi&q=imgurl:'+u},
+{name:'TinEye',url:'https://tineye.com/search?url='+u}
+];}},
+
+social:{title:'Buscar persona en redes sociales',desc:'Genera búsquedas en Google restringidas (site:) a cada red social para localizar perfiles con ese nombre o alias.',
+fields:[{id:'n',l:'Nombre completo o alias'}],
+build:v=>{const q='%22'+encodeURIComponent(v.n.trim())+'%22';const nets=[['LinkedIn','linkedin.com/in'],['Facebook','facebook.com'],['Instagram','instagram.com'],['X / Twitter','x.com'],['TikTok','tiktok.com'],['YouTube','youtube.com'],['Pinterest','pinterest.com'],['GitHub','github.com']];
+return nets.map(([n,d])=>({name:n,url:'https://www.google.com/search?q=site%3a'+d+'+'+q})).concat([{name:'Foros y blogs (genérico)',url:'https://www.google.com/search?q='+q}]);}},
+
+company:{title:'Empresas y organizaciones',desc:'Busca información pública de registro mercantil, directivos y presencia online de una empresa.',
+fields:[{id:'c',l:'Nombre de la empresa'}],
+build:v=>{const q=encodeURIComponent(v.c.trim());return [
+{name:'OpenCorporates (global)',url:'https://opencorporates.com/companies?q='+q},
+{name:'Google (menciones)',url:'https://www.google.com/search?q=%22'+q+'%22'},
+{name:'LinkedIn (empresa)',url:'https://www.google.com/search?q=site%3alinkedin.com%2fcompany+%22'+q+'%22'},
+{name:'einforma (España)',url:'https://www.einforma.com/servlet/app/prod/BUSCADOR/nombre/'+q},
+{name:'SEC EDGAR (EEUU, cotizadas)',url:'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company='+q},
+{name:'Dorks ofertas de empleo (tecnología usada)',url:'https://www.google.com/search?q=site%3alinkedin.com%2fjobs+%22'+q+'%22'}
+];}},
+
+dorks:{title:'Generador de Google Dorks',desc:'Construye una búsqueda avanzada combinando operadores de Google.',
+fields:[{id:'k',l:'Palabra clave'},{id:'s',l:'site: (opcional, ej. ejemplo.com)'},{id:'f',l:'filetype: (opcional, ej. pdf)'},{id:'iu',l:'inurl: (opcional)'}],
+build:v=>{let q=v.k.trim();if(v.s.trim())q+=' site:'+cleanDomain(v.s);if(v.f.trim())q+=' filetype:'+v.f.trim();if(v.iu.trim())q+=' inurl:'+v.iu.trim();
+return [{name:'Abrir búsqueda en Google',url:'https://www.google.com/search?q='+encodeURIComponent(q)}];}},
+
+leaks:{title:'Fugas de datos y brechas',desc:'Comprueba si un email o dominio aparece en bases de datos de brechas conocidas (información ya pública, filtrada previamente).',
+fields:[{id:'e',l:'Email o dominio (opcional)'}],
+build:v=>{const q=encodeURIComponent(v.e.trim());return [
+{name:'Have I Been Pwned',url:'https://haveibeenpwned.com/account/'+q},
+{name:'Intelligence X',url:'https://intelx.io/'},
+{name:'LeakCheck',url:'https://leakcheck.io/'},
+{name:'DeHashed',url:'https://dehashed.com/'},
+{name:'BreachDirectory',url:'https://breachdirectory.org/'}
+];}}
+};
+
+const DORK_CHEATS=[
+['<code>site:dominio.com</code>','limita los resultados a un dominio concreto.'],
+['<code>filetype:pdf</code>','busca solo archivos de ese tipo (pdf, xls, docx...).'],
+['<code>intitle:"palabra"</code>','la palabra debe estar en el título de la página.'],
+['<code>inurl:admin</code>','la palabra debe aparecer en la URL.'],
+['<code>"frase exacta"</code>','busca la frase literal, sin variaciones.'],
+['<code>-palabra</code>','excluye resultados que contengan esa palabra.'],
+['<code>intext:"@dominio.com"</code>','busca menciones de correos de ese dominio.'],
+['<code>cache:dominio.com</code>','muestra la versión indexada en caché de la página.']
+];
+
+const ETHICS=[
+'Investiga únicamente información que sea pública y verificable; no intentes acceder a cuentas, redes o sistemas privados sin autorización explícita.',
+'El hecho de que un dato sea accesible no lo hace legal de usar para cualquier fin: recopilar datos personales con una finalidad distinta a la original puede infringir el RGPD u otras leyes de protección de datos.',
+'No uses esta herramienta para acoso, ciberacecho, doxxing, discriminación o cualquier forma de daño a terceros.',
+'Si investigas sobre otra persona, hazlo con una base legal clara (periodismo de interés público, debida diligencia, seguridad, consentimiento) y documenta el propósito.',
+'Respeta los términos de servicio de cada plataforma: automatizar scraping masivo suele estar prohibido aunque el dato individual sea público.',
+'Recuerda el derecho al olvido: las personas pueden solicitar que determinada información sea desindexada o eliminada.',
+'Esta web no almacena, envía ni procesa tus consultas: solo construye enlaces hacia sitios de terceros que tú decides abrir.'
+];
+
+function renderLegal(){
+return '<div class="card legal"><h2>📄 Aviso legal y exención de responsabilidad</h2>'+
+'<h3>1. Naturaleza del servicio</h3><p>OSINT Toolkit es una herramienta puramente informativa y gratuita que genera enlaces hacia motores de búsqueda, redes sociales, registros públicos (WHOIS, certificados) y bases de datos de brechas ya conocidas. No recopila, almacena, procesa ni transmite a terceros ningún dato introducido por la persona usuaria; todo el procesamiento ocurre localmente en su navegador.</p>'+
+'<h3>2. Exención de responsabilidad</h3><p>El propietario y desarrollador de esta web <b>no se hace responsable, bajo ninguna circunstancia, del uso que cada persona usuaria haga de la información obtenida</b> a través de los enlaces generados, ni de las consecuencias legales, civiles o penales que dicho uso pudiera ocasionar. Tampoco se responsabiliza de la veracidad, actualización, disponibilidad o contenido de los sitios web de terceros enlazados, sobre los que no tiene ningún control.</p>'+
+'<h3>3. Responsabilidad del usuario</h3><p>El uso de esta herramienta es responsabilidad exclusiva de quien la utiliza. La persona usuaria se compromete a emplearla únicamente con fines lícitos (verificación de su propia huella digital, periodismo, investigación de seguridad, debida diligencia, consentimiento previo de la persona investigada) y a cumplir en todo momento la legislación vigente, incluyendo, entre otras, el Reglamento General de Protección de Datos (RGPD) y las leyes locales de protección de datos y privacidad.</p>'+
+'<h3>4. Usos prohibidos</h3><p>Queda expresamente prohibido el uso de esta herramienta para acosar, perseguir, amenazar, discriminar, extorsionar, suplantar la identidad de terceros o cometer cualquier otro acto ilícito contra personas físicas o jurídicas.</p>'+
+'<h3>5. Fuentes de terceros</h3><p>Todos los resultados a los que se accede a través de esta web pertenecen y dependen de plataformas externas (Google, redes sociales, WHOIS, Shodan, Have I Been Pwned, etc.). Esta web no mantiene ninguna relación contractual con dichas plataformas ni garantiza la exactitud de su contenido.</p>'+
+'<h3>6. Menores de edad</h3><p>Esta herramienta no está dirigida a menores de edad. Su uso requiere la capacidad legal para cumplir las obligaciones descritas en este aviso.</p>'+
+'<h3>7. Modificaciones</h3><p>Este aviso legal puede actualizarse en cualquier momento sin notificación previa. El uso continuado de la herramienta implica la aceptación de la versión vigente.</p>'+
+'<p class="hint">Al marcar la casilla de aceptación y continuar, confirmas que has leído, entendido y aceptado este aviso legal en su totalidad.</p></div>';
+}
+
+let currentField=null;
+function field(f){if(f.t==='file')return '<label>'+f.l+'</label><input id="'+f.id+'" type="file" accept="image/*">';return '<label>'+f.l+'</label><input id="'+f.id+'" type="text">';}
+function runTool(id){
+const tool=TOOLS[id],vals={};
+tool.fields.forEach(f=>vals[f.id]=document.getElementById(f.id).value||'');
+const empty=tool.fields.every(f=>!vals[f.id].trim());
+const out=document.getElementById('results');
+if(empty){out.innerHTML='<p class="hint">Rellena al menos un campo para generar los enlaces.</p>';return;}
+const links=tool.build(vals);
+out.innerHTML=links.map(l=>'<a class="chip" href="'+l.url+'" target="_blank" rel="noopener">'+esc(l.name)+' ↗</a>').join('');
+}
+function renderTool(id){
+const t=TOOLS[id];
+return '<div class="card"><span class="tag">'+t.title+'</span><p>'+t.desc+'</p>'+
+'<div class="row">'+t.fields.map(f=>'<div>'+field(f)+'</div>').join('')+'</div>'+
+'<button class="action" onclick="runTool(\''+id+'\')">Generar enlaces</button>'+
+'<div class="results" id="results"></div></div>';
+}
+function dms(a,ref){const dd=a[0]+a[1]/60+a[2]/3600;return (ref==='S'||ref==='W')?-dd:dd;}
+function renderMetadata(){
+return '<div class="card"><span class="tag">Metadatos EXIF</span>'+
+'<p>Sube una foto (tal cual, sin recomprimir) para extraer sus metadatos EXIF: modelo de cámara/móvil, fecha y, si están presentes, las coordenadas GPS donde se tomó. Todo el análisis ocurre en tu navegador; la imagen no se sube a ningún servidor.</p>'+
+'<input id="imgfile" type="file" accept="image/*">'+
+'<button class="action" onclick="extractExif()">Extraer metadatos</button>'+
+'<div id="exifout"></div></div>';
+}
+function extractExif(){
+const f=document.getElementById('imgfile').files[0];
+const box=document.getElementById('exifout');
+if(!f){box.innerHTML='<p class="hint">Selecciona primero una imagen.</p>';return;}
+if(typeof EXIF==='undefined'){box.innerHTML='<p class="hint">No se pudo cargar el lector EXIF.</p>';return;}
+EXIF.getData(f,function(){
+const tags=EXIF.getAllTags(this);
+delete tags.thumbnail;
+const keys=Object.keys(tags);
+if(!keys.length){box.innerHTML='<p class="hint">Esta imagen no contiene metadatos EXIF (muchas apps de mensajería los eliminan al comprimir).</p>';return;}
+let gpsHtml='';
+if(tags.GPSLatitude&&tags.GPSLongitude){
+const lat=dms(tags.GPSLatitude,tags.GPSLatitudeRef),lon=dms(tags.GPSLongitude,tags.GPSLongitudeRef);
+gpsHtml='<div class="results"><a class="chip" target="_blank" rel="noopener" href="https://www.google.com/maps?q='+lat+','+lon+'">📍 Ver en Google Maps ↗</a>'+
+'<a class="chip" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map=17/'+lat+'/'+lon+'">📍 Ver en OpenStreetMap ↗</a></div>';
+}
+const list=keys.map(k=>k+': '+tags[k]).join('\n');
+box.innerHTML='<div class="exifbox">'+esc(list)+'</div>'+gpsHtml;
+});
+}
+function renderDorksExtra(){
+return '<div class="card"><h3>Chuleta de operadores</h3><ul class="cheats">'+DORK_CHEATS.map(([a,b])=>'<li>'+a+' — '+b+'</li>').join('')+'</ul></div>';
+}
+function renderHome(){
+return '<div class="banner">⚠️ Esta herramienta solo genera enlaces hacia fuentes públicas y gratuitas. No scrapea ni accede a datos privados. <b>El propietario de la web no se responsabiliza del uso que le des.</b> Lee el <a href="#" onclick="go(\'legal\');return false" style="color:var(--warn);text-decoration:underline">Aviso legal</a> y la <a href="#" onclick="go(\'ethics\');return false" style="color:var(--warn);text-decoration:underline">guía ética</a>.</div>'+
+'<div class="card hero"><h1>OSINT Toolkit</h1><p>Panel gratuito de inteligencia de fuentes abiertas (OSINT). Centraliza en un único lugar los enlaces a las herramientas públicas más usadas para investigar un usuario, un email, un teléfono, un dominio, una IP, una imagen o una empresa — y extrae metadatos GPS de fotos directamente en tu navegador.</p>'+
+'<div class="stats"><div class="stat"><b>'+PLATFORMS.length+'</b><span>plataformas de usuario</span></div><div class="stat"><b>11</b><span>categorías de búsqueda</span></div><div class="stat"><b>100%</b><span>gratis y sin registro</span></div><div class="stat"><b>0</b><span>datos almacenados</span></div></div></div>'+
+'<div class="card"><h2>Categorías disponibles</h2><div class="catgrid">'+CATS.filter(c=>!['home','ethics','legal'].includes(c.s)).map(c=>'<div>'+c.n+'</div>').join('')+'</div></div>';
+}
+function renderEthics(){
+return '<div class="card"><h2>⚖️ Uso ético y legal del OSINT</h2><ul class="ethics">'+ETHICS.map(e=>'<li>'+e+'</li>').join('')+'</ul></div>';
+}
+function go(slug,btn){
+document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+if(btn)btn.classList.add('active');
+let html;
+if(slug==='home')html=renderHome();
+else if(slug==='ethics')html=renderEthics();
+else if(slug==='legal')html=renderLegal();
+else if(slug==='metadata')html=renderMetadata();
+else html=renderTool(slug)+(slug==='dorks'?renderDorksExtra():'');
+document.getElementById('main').innerHTML=html;
+window.scrollTo(0,0);
+}
+document.getElementById('nav').innerHTML=CATS.map((c,i)=>'<button onclick="go(\''+c.s+'\',this)"'+(i===0?' class="active"':'')+'>'+c.n+'</button>').join('');
+document.getElementById('main').innerHTML=renderHome();
+document.getElementById('gateChk').addEventListener('change',function(){document.getElementById('gateBtn').disabled=!this.checked});
+function acceptGate(){try{localStorage.setItem('osint_legal_accepted','1')}catch(e){}document.getElementById('gate').style.display='none';}
+try{if(localStorage.getItem('osint_legal_accepted')==='1')document.getElementById('gate').style.display='none';}catch(e){}
+</script>
+</body>
+</html>
